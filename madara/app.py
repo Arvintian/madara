@@ -23,7 +23,6 @@ class Madara(object):
         self.endpoint_map: dict = {}
         self.blueprints: dict = {}
         self.response_class = Response
-        self.logger = None
         self._middleware_chain = None
         self._view_middleware = []
         self._exception_middleware = []
