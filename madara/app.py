@@ -5,7 +5,7 @@ from werkzeug.datastructures import Headers
 from werkzeug.serving import run_simple
 from madara.blueprints import Blueprint
 from madara.wrappers import Request, Response
-from madara.utils import jsonify, reraise, _endpoint_from_view_func, import_string
+from madara.utils import jsonify, reraise, _endpoint_from_view_func, import_string, load_config
 from madara.compat import text_type, string_types
 from madara.log import enable_pretty_logging
 import sys
@@ -16,7 +16,8 @@ import traceback
 class Madara(object):
 
     def __init__(self, **kwargs):
-        self.config: dict = kwargs.get("config", {})
+        self.config = load_config(kwargs)
+        self.bootstrap()
         self.url_map: Map = Map()
         self.url_rule_class = Rule
         self.endpoint_map: dict = {}
@@ -27,7 +28,6 @@ class Madara(object):
         self._view_middleware = []
         self._exception_middleware = []
         self.load_middleware()
-        self.bootstrap()
 
     def bootstrap(self):
         if self.config.get("debug"):

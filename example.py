@@ -3,7 +3,7 @@ from madara.wrappers import Request
 from madara.blueprints import Blueprint
 
 app = Madara(config={
-    "debug": True,
+    "DEBUG": True,
     "middlewares": [
         "tests.middleware.M1",
         "tests.middleware.M2",

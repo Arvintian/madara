@@ -53,3 +53,16 @@ def import_string(dotted_path):
         return getattr(module, class_name)
     except AttributeError as err:
         raise ImportError('Module "%s" does not define a "%s" attribute/class' % (module_path, class_name)) from err
+
+
+def load_config(kwargs: dict)->dict:
+    config = {}
+    for k, v in kwargs.get("config", {}).items():
+        if isinstance(k, str):
+            config.update({
+                k: v,
+                k.lower(): v,
+            })
+        else:
+            config.update({k: v})
+    return config
