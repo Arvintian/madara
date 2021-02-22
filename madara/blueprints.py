@@ -10,10 +10,14 @@ class BlueprintSetupState(object):
 
         self.options = options
 
+        subdomain = self.options.get("subdomain")
+        if subdomain is None:
+            subdomain = self.blueprint.subdomain
+        self.subdomain = subdomain
+
         url_prefix = self.options.get("url_prefix")
         if url_prefix is None:
             url_prefix = self.blueprint.url_prefix
-
         self.url_prefix = url_prefix
 
     def add_url_rule(self, pattern, endpoint=None, view_func=None, **options):
@@ -22,6 +26,8 @@ class BlueprintSetupState(object):
                 pattern = "/".join((self.url_prefix.rstrip("/"), pattern.lstrip("/")))
             else:
                 pattern = self.url_prefix
+
+        options.setdefault("subdomain", self.subdomain)
 
         if endpoint is None:
             endpoint = _endpoint_from_view_func(view_func)
@@ -36,9 +42,10 @@ class BlueprintSetupState(object):
 
 class Blueprint(object):
 
-    def __init__(self, name, url_prefix=None):
+    def __init__(self, name, url_prefix=None, subdomain=None):
         self.name = name
         self.url_prefix = url_prefix
+        self.subdomain = subdomain
         self.deferred_functions = []
 
     def record(self, func):

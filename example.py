@@ -3,11 +3,12 @@ from madara.wrappers import Request
 from madara.blueprints import Blueprint
 
 app = Madara(config={
-    "DEBUG": True,
+    "debug": True,
     "middlewares": [
         "tests.middleware.M1",
         "tests.middleware.M2",
-    ]
+    ],
+    # "server_name": "example.com",
 })
 
 
@@ -33,6 +34,7 @@ def blueprint_route(request: Request):
     }
 
 
+#app.register_blueprint(bp_example, url_prefix="/blueprint", subdomain="public")
 app.register_blueprint(bp_example, url_prefix="/blueprint")
 
 if __name__ == "__main__":

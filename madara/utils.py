@@ -55,9 +55,9 @@ def import_string(dotted_path):
         raise ImportError('Module "%s" does not define a "%s" attribute/class' % (module_path, class_name)) from err
 
 
-def load_config(kwargs: dict)->dict:
+def load_config(kw: dict) -> dict:
     config = {}
-    for k, v in kwargs.get("config", {}).items():
+    for k, v in kw.items():
         if isinstance(k, str):
             config.update({
                 k: v,

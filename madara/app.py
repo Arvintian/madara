@@ -1,7 +1,7 @@
 from werkzeug.wrappers import BaseResponse
 from werkzeug.routing import Map, Rule, MapAdapter
 from werkzeug.exceptions import HTTPException, InternalServerError, NotFound
-from werkzeug.datastructures import Headers
+from werkzeug.datastructures import Headers, ImmutableDict
 from werkzeug.serving import run_simple
 from madara.blueprints import Blueprint
 from madara.wrappers import Request, Response
@@ -15,10 +15,29 @@ import traceback
 
 class Madara(object):
 
-    def __init__(self, **kwargs):
-        self.config = load_config(kwargs)
-        self.bootstrap()
+    default_config = ImmutableDict(
+        {
+            "debug": False,
+            "server_name": None,
+            "middlewares": [],
+            "host_matching": False,
+            "subdomain_matching": False,
+            "logger_handler": None,
+        }
+    )
+
+    def __init__(self, config=None):
+        self.config = dict(self.default_config)
+        if not config is None:
+            self.config.update(load_config(config))
+        if self.config["debug"]:
+            self.logger = enable_pretty_logging(logger=logging.getLogger("madara"), handler=self.config["logger_handler"], level=logging.DEBUG)
+            self.logger.debug("madara config {}".format(self.config))
+        else:
+            self.logger = enable_pretty_logging(logger=logging.getLogger("madara"), handler=self.config["logger_handler"], level=logging.WARNING)
         self.url_map: Map = Map()
+        self.url_map.host_matching = self.config["host_matching"]
+        self.subdomain_matching = self.config["subdomain_matching"]
         self.url_rule_class = Rule
         self.endpoint_map: dict = {}
         self.blueprints: dict = {}
@@ -27,12 +46,6 @@ class Madara(object):
         self._view_middleware = []
         self._exception_middleware = []
         self.load_middleware()
-
-    def bootstrap(self):
-        if self.config.get("debug"):
-            self.logger = enable_pretty_logging(logger=logging.getLogger("madara"), level=logging.DEBUG)
-        else:
-            self.logger = enable_pretty_logging(logger=logging.getLogger("madara"), level=logging.WARNING)
 
     def load_middleware(self):
         middlewares = self.config.get("middlewares", [])
@@ -120,7 +133,11 @@ class Madara(object):
         blueprint.register(self, options)
 
     def dispatch_request(self, request):
-        adapter: MapAdapter = self.url_map.bind_to_environ(request.environ)
+        if not self.subdomain_matching:
+            subdomain = self.url_map.default_subdomain or None
+        else:
+            subdomain = None
+        adapter: MapAdapter = self.url_map.bind_to_environ(request.environ, server_name=self.config["server_name"], subdomain=subdomain)
         try:
             endpoint, view_kwargs = adapter.match()
             endpoint_func = self.endpoint_map.get(endpoint, None)
