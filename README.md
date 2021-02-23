@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Madara is a python web framework for building APIs inspire by [flask](https://github.com/pallets/flask), but no [context](https://flask.palletsprojects.com/en/1.1.x/appcontext/) design, so will be more free in multi-thread environment.
+Madara is a python web framework for building APIs inspire by [flask](https://github.com/pallets/flask), but no [context](https://flask.palletsprojects.com/en/1.1.x/appcontext/) design. In addition added django like [middleware](https://docs.djangoproject.com/en/3.1/topics/http/middleware/) support.
 
 ## Installation
 
@@ -57,8 +57,3 @@ if __name__ == "__main__":
     app.run()
 
 ```
-
-## RoadMap
-
-- [x] Middleware
-- [ ] Websocket
