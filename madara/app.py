@@ -143,6 +143,7 @@ class Madara(object):
             endpoint_func = self.endpoint_map.get(endpoint, None)
             if not endpoint_func:
                 raise NotFound()
+            request.view_args = view_kwargs
             rv = self.process_view_by_middleware(request, endpoint_func, view_kwargs)
             if rv is None:
                 rv = endpoint_func(request, **view_kwargs)

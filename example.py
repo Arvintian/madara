@@ -22,6 +22,7 @@ def app_error(request: Request):
 
 @app.route("/item/<int:the_id>", methods=["GET"])
 def app_route(request: Request, the_id):
+    print(request.view_args)
     return "item id is {}".format(the_id)
 
 
