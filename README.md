@@ -142,7 +142,7 @@ The madara request object just a warp of [werkzeug request](https://werkzeug.pal
 
 ### Response
 
-The return value from a view function is automatically converted into a [werkzeug response](https://werkzeug.palletsprojects.com/en/1.0.x/wrappers/#werkzeug.wrappers.Response) for you. If the return value is a dict, jsonify() is called to produce a response, which will serialize any supported JSON data type and set mimetype to application/json.
+The return value from a view function is automatically converted into a [werkzeug response](https://werkzeug.palletsprojects.com/en/1.0.x/wrappers/#werkzeug.wrappers.Response) for you. If the return value is a dict, which will serialize any supported JSON data type and set mimetype to application/json.
 
 ### Blueprint
 
