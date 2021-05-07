@@ -209,11 +209,11 @@ class SimpleMiddleware:
 
 ```
 
-The get_response callable provided by Madara might be the actual view (if this is the last listed middleware) or it might be the next middleware in the chain.
+The `get_response` callable provided by Madara might be the actual view (if this is the last listed middleware) or it might be the next middleware in the chain.
 
-process_view() is called just before Madara calls the view. It should return either None or an response object. If it returns None, Madara will continue processing this request, executing any other process_view() middleware and, then, the appropriate view. If it returns an response object, Madara won’t bother calling the appropriate view; it’ll apply response middleware to that response and return the result.
+`process_view()` is called just before Madara calls the view. It should return either None or an response object. If it returns None, Madara will continue processing this request, executing any other `process_view()` middleware and, then, the appropriate view. If it returns an response object, Madara won’t bother calling the appropriate view; it’ll apply response middleware to that response and return the result.
 
-Madara calls process_exception() when a view raises an exception. process_exception() should return either None or an response object.
+Madara calls `process_exception()` when a view raises an exception. process_exception() should return either None or an response object.
 
 ### Configuration
 
