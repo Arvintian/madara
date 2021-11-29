@@ -6,6 +6,8 @@ unicode_type = str
 basestring_type = str
 _TO_UNICODE_TYPES = (unicode_type, type(None))
 
+default_stream_handler = StreamHandler()
+
 
 def to_unicode(value):
     """Converts a string argument to a unicode string.
@@ -162,11 +164,11 @@ class LogFormatter(logging.Formatter):
         return formatted.replace("\n", "\n    ")
 
 
-def enable_pretty_logging(logger, handler=None, color=True, level=logging.WARNING):
+def enable_pretty_logging(logger: logging.Logger, handler=None, color=True, level=logging.WARNING):
     """Turns on formatted logging output as configured.
     """
     if not handler:
-        channel = StreamHandler()
+        channel = default_stream_handler
     else:
         channel = handler
     channel.setFormatter(LogFormatter(color=color))
