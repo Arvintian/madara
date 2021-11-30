@@ -35,7 +35,9 @@ class M1(object):
     def process_exception(self, request, exception):
         logger.info("m1 process exception: {}".format(exception))
         logger.error(traceback.format_exc())
-        return None
+        return {
+            "code": -1
+        }
 
 
 class M2(object):
@@ -51,6 +53,8 @@ class M2(object):
         # the view (and later middleware) are called.
 
         logger.info("m2 process request")
+
+        # raise Exception("m2 middleware exception")
 
         response = self.get_response(request)
 
@@ -68,6 +72,4 @@ class M2(object):
     def process_exception(self, request, exception):
         logger.info("m2 process exception")
         logger.error(traceback.format_exc())
-        return {
-            "code": -1
-        }
+        return None

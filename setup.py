@@ -10,7 +10,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 
 setup_args = dict(
     name='madara',
-    version='0.0.7',
+    version='0.0.8',
     description='A web framework for building APIs.',
     long_description="Madara is a web framework for building APIs inspire by [flask](https://github.com/pallets/flask).",
     long_description_content_type="text/markdown",

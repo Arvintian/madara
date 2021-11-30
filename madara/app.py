@@ -266,8 +266,23 @@ class Madara(object):
 
     def wsgi_app(self, environ, start_response):
         request = Request(environ)
-        response = self._middleware_chain(request)
-        return response(environ, start_response)
+        try:
+            response = self._middleware_chain(request)
+            return response(environ, start_response)
+        except Exception as e:
+            # process middleware chain __call__ error
+            response = self.make_response(request, InternalServerError(original_exception=e))
+            if not self._exception_middleware:
+                self.logger.error(traceback.format_exc())
+            else:
+                # process exception by middleware
+                try:
+                    rv = self.process_exception_by_middleware(request, e)
+                    if not rv is None:
+                        response = self.make_response(request, rv)
+                except Exception as e:
+                    response = self.make_response(request, InternalServerError(original_exception=e))
+            return response(environ, start_response)
 
     def __call__(self, environ, start_response):
         return self.wsgi_app(environ, start_response)
