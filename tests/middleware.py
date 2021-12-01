@@ -33,7 +33,7 @@ class M1(object):
         return None
 
     def process_exception(self, request, exception):
-        logger.info("m1 process exception: {}".format(exception))
+        logger.info("m1 process exception")
         logger.error(traceback.format_exc())
         return {
             "code": -1
@@ -71,5 +71,40 @@ class M2(object):
 
     def process_exception(self, request, exception):
         logger.info("m2 process exception")
+        logger.error(traceback.format_exc())
+        return None
+
+
+class M3(object):
+
+    def __init__(self, get_response, app):
+        self.current_app = app
+        self.get_response = get_response
+        # One-time configuration and initialization.
+        logger.info("m3 init")
+
+    def __call__(self, request):
+        # Code to be executed for each request before
+        # the view (and later middleware) are called.
+
+        logger.info("m3 process request")
+
+        # raise Exception("m3 middleware exception")
+
+        response = self.get_response(request)
+
+        # Code to be executed for each request/response after
+        # the view is called.
+
+        logger.info("m3 process response")
+
+        return response
+
+    def process_view(self, request, callback, callback_kwargs):
+        logger.info("m3 process view")
+        return None
+
+    def process_exception(self, request, exception):
+        logger.info("m3 process exception")
         logger.error(traceback.format_exc())
         return None

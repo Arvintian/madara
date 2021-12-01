@@ -7,6 +7,7 @@ import typing as t
 class Request(RequestBase, _JSONMixin):
 
     view_args: t.Optional[t.Dict[str, t.Any]] = None
+    endpoint: t.Optional[str] = None
 
 
 class Response(ResponseBase):

@@ -51,7 +51,9 @@ class Madara(object):
         middlewares = self.config.get("middlewares", [])
         handler = self.dispatch_request
         for md in reversed(middlewares):
-            mw = import_string(md)
+            mw = md
+            if isinstance(md, str):
+                mw = import_string(md)
             mw_instance = mw(handler, self)
             if hasattr(mw_instance, 'process_view'):
                 self._view_middleware.insert(0, mw_instance.process_view)
@@ -143,7 +145,7 @@ class Madara(object):
             endpoint_func = self.endpoint_map.get(endpoint, None)
             if not endpoint_func:
                 raise NotFound()
-            request.view_args = view_kwargs
+            request.endpoint, request.view_args = endpoint, view_kwargs
             rv = self.process_view_by_middleware(request, endpoint_func, view_kwargs)
             if rv is None:
                 rv = endpoint_func(request, **view_kwargs)
