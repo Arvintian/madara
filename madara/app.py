@@ -1,4 +1,3 @@
-from werkzeug.wrappers import BaseResponse
 from werkzeug.routing import Map, Rule, MapAdapter
 from werkzeug.exceptions import HTTPException, InternalServerError, NotFound
 from werkzeug.datastructures import Headers, ImmutableDict
@@ -232,7 +231,7 @@ class Madara(object):
                 status = headers = None
             elif isinstance(rv, dict):
                 rv = jsonify(rv)
-            elif isinstance(rv, BaseResponse) or callable(rv):
+            elif isinstance(rv, Response) or callable(rv):
                 # evaluate a WSGI callable, or coerce a different response
                 # class to the correct type
                 try:
