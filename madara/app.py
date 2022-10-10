@@ -33,7 +33,7 @@ class Madara(object):
             self.logger = enable_pretty_logging(logger=logging.getLogger("madara"), handler=self.config["logger_handler"], level=logging.DEBUG)
             self.logger.debug("madara config {}".format(self.config))
         else:
-            self.logger = enable_pretty_logging(logger=logging.getLogger("madara"), handler=self.config["logger_handler"], level=logging.WARNING)
+            self.logger = enable_pretty_logging(logger=logging.getLogger("madara"), handler=self.config["logger_handler"], level=logging.INFO)
         self.url_map: Map = Map()
         self.url_map.host_matching = self.config["host_matching"]
         self.subdomain_matching = self.config["subdomain_matching"]
