@@ -17,7 +17,13 @@ class Response(__response_base):
     pass
 
 
-def make_response(request, rv):
+def make_response(request, *rv) -> Response:
+
+    if not rv:
+        return Response()
+
+    if len(rv) == 1:
+        rv = rv[0]
 
     status = headers = None
 
