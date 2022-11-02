@@ -1,13 +1,12 @@
 from werkzeug.routing import Map, Rule, MapAdapter
 from werkzeug.exceptions import HTTPException, InternalServerError, NotFound
-from werkzeug.datastructures import Headers, ImmutableDict
+from werkzeug.datastructures import ImmutableDict
 from werkzeug.serving import run_simple
 from madara.blueprints import Blueprint
-from madara.wrappers import Request, Response
-from madara.utils import jsonify, reraise, _endpoint_from_view_func, import_string, load_config
-from madara.compat import text_type, string_types
+from madara.wrappers import Request, make_response
+from madara.utils import _endpoint_from_view_func, import_string, load_config
+from madara.compat import string_types
 from madara.log import enable_pretty_logging
-import sys
 import logging
 import traceback
 
@@ -40,7 +39,6 @@ class Madara(object):
         self.url_rule_class = Rule
         self.endpoint_map: dict = {}
         self.blueprints: dict = {}
-        self.response_class = Response
         self._middleware_chain = None
         self._view_middleware = []
         self._exception_middleware = []
@@ -160,7 +158,7 @@ class Madara(object):
                 if rv is None:
                     return InternalServerError(original_exception=e)
                 return self.make_response(request, rv)
-            except Exception as e:
+            except Exception as re:
                 # if exception process middleware raise a exception, log the traceback and return an InternalServerError.
                 self.logger.error(traceback.format_exc())
                 return InternalServerError(original_exception=e)
@@ -189,81 +187,7 @@ class Madara(object):
         return None
 
     def make_response(self, request, rv):
-
-        status = headers = None
-
-        # unpack tuple returns
-        if isinstance(rv, tuple):
-            len_rv = len(rv)
-
-            # a 3-tuple is unpacked directly
-            if len_rv == 3:
-                rv, status, headers = rv
-            # decide if a 2-tuple has status or headers
-            elif len_rv == 2:
-                if isinstance(rv[1], (Headers, dict, tuple, list)):
-                    rv, headers = rv
-                else:
-                    rv, status = rv
-            # other sized tuples are not allowed
-            else:
-                raise TypeError(
-                    "The view function did not return a valid response tuple."
-                    " The tuple must have the form (body, status, headers),"
-                    " (body, status), or (body, headers)."
-                )
-
-        # the body must not be None
-        if rv is None:
-            raise TypeError(
-                "The view function did not return a valid response. The"
-                " function either returned None or ended without a return"
-                " statement."
-            )
-
-        # make sure the body is an instance of the response class
-        if not isinstance(rv, self.response_class):
-            if isinstance(rv, (text_type, bytes, bytearray)):
-                # let the response class set the status and headers instead of
-                # waiting to do it manually, so that the class can handle any
-                # special logic
-                rv = self.response_class(rv, status=status, headers=headers)
-                status = headers = None
-            elif isinstance(rv, dict):
-                rv = jsonify(rv)
-            elif isinstance(rv, Response) or callable(rv):
-                # evaluate a WSGI callable, or coerce a different response
-                # class to the correct type
-                try:
-                    rv = self.response_class.force_type(rv, request.environ)
-                except TypeError as e:
-                    new_error = TypeError(
-                        "{e}\nThe view function did not return a valid"
-                        " response. The return type must be a string, dict, tuple,"
-                        " Response instance, or WSGI callable, but it was a"
-                        " {rv.__class__.__name__}.".format(e=e, rv=rv)
-                    )
-                    reraise(TypeError, new_error, sys.exc_info()[2])
-            else:
-                raise TypeError(
-                    "The view function did not return a valid"
-                    " response. The return type must be a string, dict, tuple,"
-                    " Response instance, or WSGI callable, but it was a"
-                    " {rv.__class__.__name__}.".format(rv=rv)
-                )
-
-        # prefer the status if it was provided
-        if status is not None:
-            if isinstance(status, (text_type, bytes, bytearray)):
-                rv.status = status
-            else:
-                rv.status_code = status
-
-        # extend existing headers with provided headers
-        if headers:
-            rv.headers.extend(headers)
-
-        return rv
+        return make_response(request, rv)
 
     def wsgi_app(self, environ, start_response):
         request = Request(environ)
@@ -281,7 +205,7 @@ class Madara(object):
                     rv = self.process_exception_by_middleware(request, e)
                     if not rv is None:
                         response = self.make_response(request, rv)
-                except Exception as e:
+                except Exception as re:
                     response = self.make_response(request, InternalServerError(original_exception=e))
             return response(environ, start_response)
 
