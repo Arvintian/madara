@@ -28,11 +28,13 @@ class Madara(object):
         self.config = dict(self.default_config)
         if not config is None:
             self.config.update(load_config(config))
+
         if self.config["debug"]:
             self.logger = enable_pretty_logging(logger=logging.getLogger("madara"), handler=self.config["logger_handler"], level=logging.DEBUG)
-            self.logger.debug("madara config {}".format(self.config))
         else:
             self.logger = enable_pretty_logging(logger=logging.getLogger("madara"), handler=self.config["logger_handler"], level=logging.INFO)
+        self.logger.propagate = False
+
         self.url_map: Map = Map()
         self.url_map.host_matching = self.config["host_matching"]
         self.subdomain_matching = self.config["subdomain_matching"]
@@ -43,6 +45,9 @@ class Madara(object):
         self._view_middleware = []
         self._exception_middleware = []
         self.load_middleware()
+
+        if self.config["debug"]:
+            self.logger.debug("madara config {}".format(self.config))
 
     def load_middleware(self):
         middlewares = self.config.get("middlewares", [])
